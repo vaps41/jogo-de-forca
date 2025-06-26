@@ -38,6 +38,7 @@
         }
         #toast {
             transition: top 0.5s ease-in-out;
+            z-index: 100;
         }
     </style>
 </head>
@@ -147,38 +148,38 @@
     </div>
 
     <script type="module">
+        // Importações do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, deleteDoc, arrayUnion, increment, deleteField } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
-        
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, deleteDoc, arrayUnion, increment, deleteField } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // SUA CONFIGURAÇÃO DO FIREBASE
+        const firebaseConfig = {
             apiKey: "AIzaSyC7A9r7nw6KzTANqs27LHTq3JpX73HwraQ",
             authDomain: "dev-forca-game.firebaseapp.com",
             projectId: "dev-forca-game",
-            storageBucket: "dev-forca-game.firebasestorage.app",
+            storageBucket: "dev-forca-game.appspot.com",
             messagingSenderId: "51282800654",
             appId: "1:51282800654:web:bd04a5fcc2be2ae1fb4c5f",
             measurementId: "G-LT03MVREW3"
         };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dev-hangman';
         
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        const appId = 'dev-hangman';
         
-
-        const wordBank = [
-            { word: "JAVASCRIPT", hint: "Linguagem de script para web" }, { word: "PYTHON", hint: "Sintaxe limpa e legível" }, { word: "REACT", hint: "Biblioteca para interfaces de usuário" }, { word: "COMPONENTE", hint: "Bloco de construção reutilizável" }, { word: "ALGORITMO", hint: "Sequência de passos para um problema" }, { word: "API", hint: "Comunicação entre softwares" }, { word: "GIT", hint: "Sistema de controle de versão" }, { word: "DOCKER", hint: "Plataforma de contêineres" }, { word: "DATABASE", hint: "Coleção organizada de dados" }, { word: "FRONTEND", hint: "Lado do cliente de um site" }, { word: "BACKEND", hint: "Lógica do servidor e banco de dados" }, { word: "HTML", hint: "Linguagem de marcação para web" }, { word: "CSS", hint: "Linguagem para estilizar páginas" }, { word: "FRAMEWORK", hint: "Estrutura que simplifica o dev" }, { word: "DEBUG", hint: "Encontrar e corrigir erros" },
-        ];
-
+        // Variáveis globais da aplicação
+        let app, auth, db;
         let currentUser = null;
         let currentGameId = null;
         let unsubscribeGame = null;
         let isHost = false;
         let namePromptCallback = null;
 
+        // Banco de palavras
+        const wordBank = [
+            { word: "JAVASCRIPT", hint: "Linguagem de script para web" }, { word: "PYTHON", hint: "Sintaxe limpa e legível" }, { word: "REACT", hint: "Biblioteca para interfaces de usuário" }, { word: "COMPONENTE", hint: "Bloco de construção reutilizável" }, { word: "ALGORITMO", hint: "Sequência de passos para um problema" }, { word: "API", hint: "Comunicação entre softwares" }, { word: "GIT", hint: "Sistema de controle de versão" }, { word: "DOCKER", hint: "Plataforma de contêineres" }, { word: "DATABASE", hint: "Coleção organizada de dados" }, { word: "FRONTEND", hint: "Lado do cliente de um site" }, { word: "BACKEND", hint: "Lógica do servidor e banco de dados" }, { word: "HTML", hint: "Linguagem de marcação para web" }, { word: "CSS", hint: "Linguagem para estilizar páginas" }, { word: "FRAMEWORK", hint: "Estrutura que simplifica o dev" }, { word: "DEBUG", hint: "Encontrar e corrigir erros" },
+        ];
+        
+        // Elementos da UI
         const screens = { home: document.getElementById('home-screen'), join: document.getElementById('join-game-screen'), game: document.getElementById('game-screen') };
         const nameModal = document.getElementById('name-modal');
         const gameIdDisplay = document.getElementById('game-id-display');
@@ -203,11 +204,6 @@
             setTimeout(() => { toast.style.top = '-100px'; }, 3000);
         };
         
-        onAuthStateChanged(auth, (user) => {
-            if (user) { currentUser = user; } 
-            else { signInAnonymously(auth).catch((error) => console.error("Auth Error:", error)); }
-        });
-
         const normalizeString = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
 
         const createKeyboard = () => {
@@ -281,7 +277,7 @@
         };
 
         const handleGuess = async (letter) => {
-            if (!currentGameId || !currentUser) return;
+            if (!currentGameId || !currentUser || !db) return;
             const gameRef = doc(db, `artifacts/${appId}/public/data/hangman`, currentGameId);
             const gameSnap = await getDoc(gameRef);
             if (gameSnap.exists()) {
@@ -301,7 +297,7 @@
         };
         
         const createAndJoinGame = async (playerName) => {
-            if (!currentUser) return showToast("Usuário não autenticado.");
+            if (!currentUser || !db) return showToast("Usuário não autenticado.");
             const { word, hint } = wordBank[Math.floor(Math.random() * wordBank.length)];
             const gameId = Math.random().toString(36).substring(2, 8).toUpperCase();
             const gameData = {
@@ -314,14 +310,13 @@
         };
         
         const joinGame = async (gameId) => {
-            if (!currentUser) return showToast("Usuário não autenticado.");
+            if (!currentUser || !db) return showToast("Usuário não autenticado.");
             currentGameId = gameId.trim().toUpperCase();
             const gameRef = doc(db, `artifacts/${appId}/public/data/hangman`, currentGameId);
             const gameSnap = await getDoc(gameRef);
 
             if (!gameSnap.exists()) return showToast("Jogo não encontrado! Verifique o ID.");
 
-            // Se o jogador já não estiver no jogo, adiciona-o
             if (!gameSnap.data().players[currentUser.uid]) {
                 const playerName = localStorage.getItem('hangmanPlayerName') || 'Jogador Anônimo';
                  await updateDoc(gameRef, { 
@@ -345,46 +340,100 @@
             });
             showScreen('game');
         };
-
+        
         const leaveGame = async (isInitiator = true) => {
             if (unsubscribeGame) unsubscribeGame();
-            if (isInitiator && currentGameId && currentUser) {
+        
+            if (isInitiator && currentGameId && currentUser && db) {
                 const gameRef = doc(db, `artifacts/${appId}/public/data/hangman`, currentGameId);
                 const gameSnap = await getDoc(gameRef);
+        
                 if (gameSnap.exists()) {
                     const gameData = gameSnap.data();
                     if (gameData.hostId === currentUser.uid) {
                         await deleteDoc(gameRef);
                     } else {
-                        const playerOrder = gameData.playerOrder.filter(pId => pId !== currentUser.uid);
-                        delete gameData.players[currentUser.uid];
-                        const updatePayload = { players: gameData.players, playerOrder: playerOrder };
-                        if (gameData.currentPlayerTurn === currentUser.uid && playerOrder.length > 0) {
-                            const oldIndex = gameData.playerOrder.indexOf(currentUser.uid);
-                            updatePayload.currentPlayerTurn = playerOrder[oldIndex % playerOrder.length];
+                        const oldPlayerOrder = gameData.playerOrder || [];
+                        const leavingPlayerIndex = oldPlayerOrder.indexOf(currentUser.uid);
+                        const newPlayerOrder = oldPlayerOrder.filter(pId => pId !== currentUser.uid);
+                        const updatePayload = {
+                            [`players.${currentUser.uid}`]: deleteField(),
+                            playerOrder: newPlayerOrder
+                        };
+                        if (gameData.currentPlayerTurn === currentUser.uid && newPlayerOrder.length > 0) {
+                            updatePayload.currentPlayerTurn = newPlayerOrder[leavingPlayerIndex % newPlayerOrder.length];
                         }
                         await updateDoc(gameRef, updatePayload);
                     }
                 }
             }
             currentGameId = null; isHost = false; unsubscribeGame = null;
+            window.history.replaceState(null, '', window.location.pathname);
             showScreen('home');
         };
         
-        // --- Event Listeners ---
-        document.getElementById('create-game-btn').onclick = () => promptForName(createAndJoinGame);
-        document.getElementById('join-game-btn').onclick = () => showScreen('join');
-        document.getElementById('back-to-home-1').onclick = () => showScreen('home');
+        // --- Lógica de Inicialização ---
         
-        document.getElementById('confirm-join-btn').onclick = () => {
-            const gameId = document.getElementById('game-id-input').value;
-            if (gameId) {
-                promptForName(() => joinGame(gameId));
+        const initializeFirebaseAndStart = (config) => {
+            try {
+                app = initializeApp(config);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                    } else {
+                        signInAnonymously(auth).catch((error) => {
+                            console.error("Auth Error:", error);
+                            // CORREÇÃO: Mensagem de erro mais específica
+                            showToast("Erro de autenticação: Adicione o seu domínio no Firebase.");
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                showToast("Falha ao iniciar o Firebase. Verifique a configuração.");
+                return;
+            }
+
+            // Anexa os event listeners depois que o Firebase está pronto
+            document.getElementById('create-game-btn').onclick = () => promptForName(createAndJoinGame);
+            document.getElementById('join-game-btn').onclick = () => showScreen('join');
+            document.getElementById('confirm-join-btn').onclick = () => {
+                const gameId = document.getElementById('game-id-input').value;
+                if (gameId) { promptForName(() => joinGame(gameId)); } 
+                else { showToast("Por favor, insira um ID de jogo."); }
+            };
+            document.getElementById('leave-game-btn').onclick = () => leaveGame(true);
+            document.getElementById('new-word-btn').onclick = async () => {
+                if (!isHost || !currentGameId) return;
+                const { word, hint } = wordBank[Math.floor(Math.random() * wordBank.length)];
+                const gameRef = doc(db, `artifacts/${appId}/public/data/hangman`, currentGameId);
+                const gameSnap = await getDoc(gameRef);
+                if (gameSnap.exists()) {
+                    const currentPlayers = gameSnap.data().players;
+                    for (const pid in currentPlayers) { currentPlayers[pid].score = 0; }
+                    await updateDoc(gameRef, { 
+                        secretWord: word.toUpperCase(), hint, guessedLetters: [], players: currentPlayers, currentPlayerTurn: gameSnap.data().hostId 
+                    });
+                    gameOverModal.classList.add('hidden');
+                }
+            };
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameIdFromUrl = urlParams.get('gameId');
+            if (gameIdFromUrl) {
+                history.replaceState(null, '', window.location.pathname);
+                promptForName(() => joinGame(gameIdFromUrl));
             } else {
-                showToast("Por favor, insira um ID de jogo.");
+                showScreen('home');
             }
         };
 
+        // --- Event Listeners Globais ---
+        
+        document.getElementById('back-to-home-1').onclick = () => showScreen('home');
         document.getElementById('confirm-name-btn').onclick = () => {
             const playerNameInput = document.getElementById('player-name-input');
             const playerName = playerNameInput.value.trim();
@@ -396,18 +445,13 @@
                 namePromptCallback = null;
             }
         };
-        
-        document.getElementById('leave-game-btn').onclick = () => leaveGame(true);
 
         document.getElementById('share-game-btn').onclick = async () => {
             const shareUrl = `${window.location.origin}${window.location.pathname}?gameId=${currentGameId}`;
             const shareData = { title: 'Forca para Devs', text: 'Venha jogar Forca para Devs comigo!', url: shareUrl };
             try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else {
-                    throw new Error('Web Share API not supported');
-                }
+                if (navigator.share) { await navigator.share(shareData); } 
+                else { throw new Error('Web Share API not supported'); }
             } catch (err) {
                 navigator.clipboard.writeText(shareUrl)
                     .then(() => showToast('Link do jogo copiado!'))
@@ -415,30 +459,13 @@
             }
         };
 
-        document.getElementById('new-word-btn').onclick = async () => {
-            if (!isHost || !currentGameId) return;
-            const { word, hint } = wordBank[Math.floor(Math.random() * wordBank.length)];
-            const gameRef = doc(db, `artifacts/${appId}/public/data/hangman`, currentGameId);
-            const gameSnap = await getDoc(gameRef);
-            if (gameSnap.exists()) {
-                const currentPlayers = gameSnap.data().players;
-                for (const pid in currentPlayers) { currentPlayers[pid].score = 0; }
-                await updateDoc(gameRef, { 
-                    secretWord: word.toUpperCase(), hint, guessedLetters: [], players: currentPlayers, currentPlayerTurn: gameSnap.data().hostId 
-                });
-                gameOverModal.classList.add('hidden');
-            }
-        };
-        
-        // --- Inicialização da Aplicação ---
+        // --- Ponto de Entrada da Aplicação ---
         window.onload = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const gameIdFromUrl = urlParams.get('gameId');
-            if (gameIdFromUrl) {
-                history.replaceState(null, '', window.location.pathname); // Limpa a URL
-                promptForName(() => joinGame(gameIdFromUrl));
+            if (firebaseConfig && firebaseConfig.apiKey) {
+                 initializeFirebaseAndStart(firebaseConfig);
             } else {
-                showScreen('home');
+                 showToast("Configuração do Firebase não encontrada ou inválida!");
+                 console.error("O objeto firebaseConfig está ausente ou incompleto.");
             }
         };
     </script>
