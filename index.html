@@ -149,9 +149,9 @@
 
     <script type="module">
         // Importações do Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, deleteDoc, arrayUnion, increment, deleteField } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, deleteDoc, arrayUnion, increment, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // SUA CONFIGURAÇÃO DO FIREBASE
         const firebaseConfig = {
@@ -201,7 +201,7 @@
         const showToast = (message) => {
             toastMessage.textContent = message;
             toast.style.top = '20px';
-            setTimeout(() => { toast.style.top = '-100px'; }, 3000);
+            setTimeout(() => { toast.style.top = '-100px'; }, 4000); // Aumentado para 4 segundos
         };
         
         const normalizeString = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
@@ -387,7 +387,11 @@
                         signInAnonymously(auth).catch((error) => {
                             console.error("Auth Error:", error);
                             // CORREÇÃO: Mensagem de erro mais específica
-                            showToast("Erro de autenticação: Adicione o seu domínio no Firebase.");
+                            if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
+                                showToast("Erro: Habilite o login 'Anônimo' no seu console do Firebase.");
+                            } else {
+                                showToast("Erro de autenticação. Verifique seu console do Firebase.");
+                            }
                         });
                     }
                 });
