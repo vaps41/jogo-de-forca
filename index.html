@@ -147,16 +147,27 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, deleteDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, deleteDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+        
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyC7A9r7nw6KzTANqs27LHTq3JpX73HwraQ",
+            authDomain: "dev-forca-game.firebaseapp.com",
+            projectId: "dev-forca-game",
+            storageBucket: "dev-forca-game.firebasestorage.app",
+            messagingSenderId: "51282800654",
+            appId: "1:51282800654:web:bd04a5fcc2be2ae1fb4c5f",
+            measurementId: "G-LT03MVREW3"
+        };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'dev-hangman';
         
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
 
         const wordBank = [
             { word: "JAVASCRIPT", hint: "Linguagem de script para web" }, { word: "PYTHON", hint: "Sintaxe limpa e legível" }, { word: "REACT", hint: "Biblioteca para interfaces de usuário" }, { word: "COMPONENTE", hint: "Bloco de construção reutilizável" }, { word: "ALGORITMO", hint: "Sequência de passos para um problema" }, { word: "API", hint: "Comunicação entre softwares" }, { word: "GIT", hint: "Sistema de controle de versão" }, { word: "DOCKER", hint: "Plataforma de contêineres" }, { word: "DATABASE", hint: "Coleção organizada de dados" }, { word: "FRONTEND", hint: "Lado do cliente de um site" }, { word: "BACKEND", hint: "Lógica do servidor e banco de dados" }, { word: "HTML", hint: "Linguagem de marcação para web" }, { word: "CSS", hint: "Linguagem para estilizar páginas" }, { word: "FRAMEWORK", hint: "Estrutura que simplifica o dev" }, { word: "DEBUG", hint: "Encontrar e corrigir erros" },
