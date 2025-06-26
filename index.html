@@ -175,9 +175,59 @@
         let namePromptCallback = null;
 
         // Banco de palavras
-        const wordBank = [
-            { word: "JAVASCRIPT", hint: "Linguagem de script para web" }, { word: "PYTHON", hint: "Sintaxe limpa e legível" }, { word: "REACT", hint: "Biblioteca para interfaces de usuário" }, { word: "COMPONENTE", hint: "Bloco de construção reutilizável" }, { word: "ALGORITMO", hint: "Sequência de passos para um problema" }, { word: "API", hint: "Comunicação entre softwares" }, { word: "GIT", hint: "Sistema de controle de versão" }, { word: "DOCKER", hint: "Plataforma de contêineres" }, { word: "DATABASE", hint: "Coleção organizada de dados" }, { word: "FRONTEND", hint: "Lado do cliente de um site" }, { word: "BACKEND", hint: "Lógica do servidor e banco de dados" }, { word: "HTML", hint: "Linguagem de marcação para web" }, { word: "CSS", hint: "Linguagem para estilizar páginas" }, { word: "FRAMEWORK", hint: "Estrutura que simplifica o dev" }, { word: "DEBUG", hint: "Encontrar e corrigir erros" },
-        ];
+const wordBank = [
+    { word: "JAVASCRIPT", hint: "Linguagem de script para web" },
+    { word: "PYTHON", hint: "Sintaxe limpa e legível" },
+    { word: "REACT", hint: "Biblioteca para interfaces de usuário" },
+    { word: "COMPONENTE", hint: "Bloco de construção reutilizável" },
+    { word: "ALGORITMO", hint: "Sequência de passos para um problema" },
+    { word: "API", hint: "Comunicação entre softwares" },
+    { word: "GIT", hint: "Sistema de controle de versão" },
+    { word: "DOCKER", hint: "Plataforma de contêineres" },
+    { word: "DATABASE", hint: "Coleção organizada de dados" },
+    { word: "FRONTEND", hint: "Lado do cliente de um site" },
+    { word: "BACKEND", hint: "Lógica do servidor e banco de dados" },
+    { word: "HTML", hint: "Linguagem de marcação para web" },
+    { word: "CSS", hint: "Linguagem para estilizar páginas" },
+    { word: "FRAMEWORK", hint: "Estrutura que simplifica o dev" },
+    { word: "DEBUG", hint: "Encontrar e corrigir erros" },
+    { word: "VSCODE", hint: "Editor de código popular da Microsoft" },
+    { word: "GITHUB", hint: "Plataforma web para controle de versão e colaboração" },
+    { word: "SQL", hint: "Linguagem padrão para gerenciar dados em bancos de dados relacionais" },
+    { word: "CLOUD", hint: "Modelo de entrega de serviços de computação pela internet" },
+    { word: "SERVER", hint: "Computador que fornece dados e serviços a outros computadores em uma rede" },
+    { word: "LINUX", hint: "Sistema operacional de código aberto" },
+    { word: "AGILE", hint: "Metodologia de desenvolvimento iterativa e incremental" },
+    { word: "DEVOPS", hint: "Cultura que une desenvolvimento e operações" },
+    { word: "CONTAINER", hint: "Unidade padronizada de software para empacotar código e dependências" },
+    { word: "MICROSERVICOS", hint: "Arquitetura de software com pequenos serviços independentes" },
+    { word: "JSON", hint: "Formato leve de intercâmbio de dados" },
+    { word: "XML", hint: "Linguagem de marcação para documentos e dados" },
+    { word: "HTTP", hint: "Protocolo para transferência de hipertexto na web" },
+    { word: "SSL", hint: "Protocolo de segurança para comunicação na internet" },
+    { word: "FIREWALL", hint: "Sistema de segurança que monitora e controla o tráfego de rede" },
+    { word: "CACHE", hint: "Armazenamento temporário de dados para acesso rápido" },
+    { word: "LOOP", hint: "Estrutura de controle que repete um bloco de código" },
+    { word: "VARIABLE", hint: "Espaço de memória para armazenar valores" },
+    { word: "FUNCTION", hint: "Bloco de código reutilizável que realiza uma tarefa" },
+    { word: "ARRAY", hint: "Estrutura de dados que armazena uma coleção de elementos" },
+    { word: "OBJECT", hint: "Estrutura de dados que armazena pares de chave-valor" },
+    { word: "BOOLEAN", hint: "Tipo de dado que representa verdadeiro ou falso" },
+    { word: "STRING", hint: "Tipo de dado que representa texto" },
+    { word: "INTEGER", hint: "Tipo de dado que representa números inteiros" },
+    { word: "FLOAT", hint: "Tipo de dado que representa números com casas decimais" },
+    { word: "SYNTAX", hint: "Regras que governam a estrutura de uma linguagem de programação" },
+    { word: "SEMANTICA", hint: "Significado das palavras e frases em uma linguagem" },
+    { word: "COMPILER", hint: "Programa que traduz código-fonte para código de máquina" },
+    { word: "INTERPRETER", hint: "Programa que executa código-fonte linha por linha" },
+    { word: "REPOSITORIO", hint: "Local onde o código-fonte e seus históricos são armazenados" },
+    { word: "BRANCH", hint: "Ramificação de um repositório Git para desenvolvimento paralelo" },
+    { word: "MERGE", hint: "Combinar mudanças de diferentes ramificações em Git" },
+    { word: "DEPLOY", hint: "Processo de disponibilizar uma aplicação para uso" },
+    { word: "DATABASE", hint: "Coleção organizada de dados" },
+    { word: "FIREBASE", hint: "Plataforma de desenvolvimento de aplicativos do Google" }
+];
+
         
         // Elementos da UI
         const screens = { home: document.getElementById('home-screen'), join: document.getElementById('join-game-screen'), game: document.getElementById('game-screen') };
